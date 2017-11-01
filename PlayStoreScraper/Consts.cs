@@ -9,17 +9,21 @@ namespace PlayStoreScraper
     public class Consts
     {
         // Web Request Parameters and URLs
-        public static readonly string CRAWL_URL_INITIAL          = "https://play.google.com/store/search?q={0}&c=apps&gl={1}&hl={2}";
-        public static readonly string POST_DATA_INITAL = "ipf=1&xhr=1";
-        public static readonly string CRAWL_URL_CLUSTER = "https://play.google.com/store/apps/collection/search_results_cluster_apps?authuser=0";
-        public static readonly string POST_DATA_CLUSTER = @"start=0&num=0&numChildren=0&clp={0}&pagTok={1}&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
+        public static readonly string CRAWL_URL_KEYWORD_INITIAL          = "https://play.google.com/store/search?q={0}&c=apps&gl={1}&hl={2}";
+        public static readonly string POST_DATA_KEYWORD_INITAL = "ipf=1&xhr=1";
+        public static readonly string CRAWL_URL_KEYWORD_CLUSTER = "https://play.google.com/store/apps/collection/search_results_cluster_apps?authuser=0";
+        public static readonly string POST_DATA_KEYWORD_CLUSTER = @"start=0&num=60&numChildren=0&clp={0}&pagTok={1}&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
+
+        public static readonly string CRAWL_URL_CATEGORY = "https://play.google.com/store/{0}?gl={1}&authuser=0";
+        public static readonly string POST_DATA_CATEGORY_CLUSTER = @"start=0&num={0}&numChildren=0&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
+        public static readonly int CATEGORY_NUMBER_OF_CYCLES = 9;
 
 
         public static readonly string REVIEWS_URL        = "https://play.google.com/store/getreviews";
         public static readonly string HOST               = "play.google.com";
         public static readonly string ORIGIN             = "https://play.google.com";
         public static readonly string REFERER            = "https://play.google.com/store/apps";
-        public static readonly string POST_DATA          = POST_DATA_INITAL + "&pagTok={0}";
+        public static readonly string POST_DATA          = POST_DATA_KEYWORD_INITAL + "&pagTok={0}";
         public static readonly string APP_URL_PREFIX     = "https://play.google.com";
         public static readonly string ACCEPT_LANGUAGE    = "Accept-Language: en-US;q=0.6,en;q=0.4,es;q=0.2";
         public static readonly string REVIEWS_POST_DATA  = "reviewType=0&pageNum={0}&id={1}&reviewSortOrder=2&xhr=1";

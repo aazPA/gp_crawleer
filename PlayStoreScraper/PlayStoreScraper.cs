@@ -31,21 +31,16 @@ namespace PlayStoreScraper
         /// </summary>
         /// <param name="keywords">Array of keywords</param>
         /// <param name="exporter">Exporter class for exporting. If not null, the IExporter.Export() will be called.</param>
-        /// <param name="maxAppUrls">Maximum Scraped App Urls for each keyword. To scrape without limit, set the value to 0</param>
+        ///// <param name="maxAppUrls">Maximum Scraped App Urls for each keyword. To scrape without limit, set the value to 0</param>
         /// <param name="downloadDelay">Download Delay in milliseconds</param>
         /// <param name="writeCallback">Callback method for writing the App Data</param>
-        public static void Crawl(string[] keywords, IExporter exporter = null, int maxAppUrls = 0, int downloadDelay = 0,
+        public static void CrawlByKeywords(string[] keywords, int downloadDelay = 0,
             Action<AppModel> writeCallback = null)
         {
-            if (exporter != null)
-            {
-                exporter.Open();
-            }
-
             // Collect App Urls from keywords
             foreach (string keyword in keywords)
             {
-                List<AppShortDescription> fullParsedList = CollectAppsShortInformation(keyword, maxAppUrls);
+                List<AppShortDescription> fullParsedList = CollectAppsShortInformationFromKeywords(keyword);
 
                 // Apply download delay
                 if (downloadDelay > 0)
@@ -55,23 +50,18 @@ namespace PlayStoreScraper
 
                 Console.WriteLine(fullParsedList);
             }
-
-            if (exporter != null)
-            {
-                exporter.Close();
-            }
         }
 
-        public static List<AppShortDescription> CollectAppsShortInformation(string searchField, int maxAppUrls)
+        public static List<AppShortDescription> CollectAppsShortInformationFromKeywords(string searchField)
         {
             List<AppShortDescription> parsedApps_list = new List<AppShortDescription> ();
 
 
             log.Info("Crawling Search Term : [ " + searchField + " ]");
 
-            string crawlUrl = String.Format(Consts.CRAWL_URL_INITIAL, searchField, "Russia", "ru");
+            string crawlUrl = String.Format(Consts.CRAWL_URL_KEYWORD_INITIAL, searchField, "Russia", "ru");
 
-            string postData = Consts.POST_DATA_INITAL;
+            string postData = Consts.POST_DATA_KEYWORD_INITAL;
 
             // HTML Response
             string response = string.Empty;
@@ -129,10 +119,10 @@ namespace PlayStoreScraper
 
                             ++insertedAppCount;
 
-                            if (maxAppUrls > 0 && insertedAppCount >= maxAppUrls)
-                            {
-                                goto exit;
-                            }
+                            //if (maxAppUrls > 0 && insertedAppCount >= maxAppUrls)
+                            //{
+                            //    goto exit;
+                            //}
                         }
                         else
                         {
@@ -150,8 +140,8 @@ namespace PlayStoreScraper
                     }
                     else
                     {
-                        crawlUrl = Consts.CRAWL_URL_CLUSTER;
-                        postData = String.Format(Consts.POST_DATA_CLUSTER, cat_cl.clp, cat_cl.pagTok);
+                        crawlUrl = Consts.CRAWL_URL_KEYWORD_CLUSTER;
+                        postData = String.Format(Consts.POST_DATA_KEYWORD_CLUSTER, cat_cl.clp, cat_cl.pagTok);
                     }
                     Console.WriteLine("Inserted apps: " + insertedAppCount + ".");
 

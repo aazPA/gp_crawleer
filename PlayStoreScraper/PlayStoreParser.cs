@@ -50,7 +50,7 @@ namespace PlayStoreScraper
 
             for (int i = 0; i < nodes_url.Count; i ++)
             {
-                Console.WriteLine(nodes_appName[i].Attributes);
+                //Console.WriteLine(nodes_appName[i].Attributes);
 
                 string packageName = string.Empty;
                 string appName = string.Empty;
