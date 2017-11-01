@@ -20,7 +20,7 @@ namespace PlayStoreScraper
             //  get these keywords from the database
             string[] keywords = { "Russia" };
 
-            string[] category = { "" };
+            string[] categories = { "store/apps/collection/topselling_free" };
 
             //string[] fieldNames = {
             //    "Url", "ScrapedDate", "Name", "Developer", "IsTopDeveloper", "DeveloperURL", "PublicationDate", 
