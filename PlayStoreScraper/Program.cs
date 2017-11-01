@@ -33,13 +33,7 @@ namespace PlayStoreScraper
             //string outputFilePath = @"./result";
 
             IExporter exporter = null;
-
-            // Export to CSV file.
-            // NOTE: You can also implement your own Exporter class.
-            // Please see IExporter and CSVExporter class for example.
-            //exporter = new CSVExporter(outputFilePath + ".csv", fieldNames);
-
-            // Start crawling for the keywords with maximum 30 Apps result and download delay 1 second.
+            
             PlayStoreScraper.CrawlByKeywords(keywords, 1000);
 
             Console.ReadLine();
