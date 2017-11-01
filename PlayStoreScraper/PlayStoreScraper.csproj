@@ -64,11 +64,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppCrawler.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="Exporters\CSVExporter.cs" />
     <Compile Include="Exporters\FileExporter.cs" />
     <Compile Include="Exporters\IExporter.cs" />
     <Compile Include="Exporters\JSONExporter.cs" />
+    <Compile Include="FunctionLib.cs" />
     <Compile Include="Models\AppModel.cs" />
     <Compile Include="Models\AppShortDescription.cs" />
     <Compile Include="Models\ClusterAndToken.cs" />

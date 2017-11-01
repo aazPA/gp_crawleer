@@ -45,7 +45,7 @@ namespace PlayStoreScraper
             // Collect App Urls from keywords
             foreach (string keyword in keywords)
             {
-                ISet<string> urls = CollectAppUrls(keyword, maxAppUrls);
+                List<AppShortDescription> fullParsedList = CollectAppsShortInformation(keyword, maxAppUrls);
 
                 // Apply download delay
                 if (downloadDelay > 0)
@@ -53,8 +53,7 @@ namespace PlayStoreScraper
                     Thread.Sleep(downloadDelay);
                 }
 
-                // Parse each of App Urls found
-                //ParseAppUrls(urls, downloadDelay, exporter, writeCallback);
+                Console.WriteLine(fullParsedList);
             }
 
             if (exporter != null)
@@ -63,9 +62,10 @@ namespace PlayStoreScraper
             }
         }
 
-        private static ISet<string> CollectAppUrls(string searchField, int maxAppUrls)
+        public static List<AppShortDescription> CollectAppsShortInformation(string searchField, int maxAppUrls)
         {
-            ISet<string> resultUrls = new HashSet<string>();
+            List<AppShortDescription> parsedApps_list = new List<AppShortDescription> ();
+
 
             log.Info("Crawling Search Term : [ " + searchField + " ]");
 
@@ -115,17 +115,17 @@ namespace PlayStoreScraper
                     }
 
 
-                    var kek1 = parser.ParseAppUrls(response);
+                    //var kek1 = parser.ParseAppUrls(response);
 
 
                     // Parsing Links out of Html Page
-                    foreach (string url in parser.ParseAppUrls(response))
+                    foreach (AppShortDescription asd in parser.ParseAppUrls(response))
                     {
-                        if (!resultUrls.Contains(url))
+                        if (!parsedApps_list.Contains(asd))
                         {
-                            resultUrls.Add(url);
+                            parsedApps_list.Add(asd);
 
-                            log.Info("Inserted App: " + url);
+                            log.Info("Inserted App: " + asd);
 
                             ++insertedAppCount;
 
@@ -137,7 +137,7 @@ namespace PlayStoreScraper
                         else
                         {
                             ++skippedAppCount;
-                            log.Info("Duplicated App. Skipped: " + url);
+                            log.Info("Duplicated App. Skipped: " + asd);
                         }
                     }
 
@@ -163,116 +163,10 @@ namespace PlayStoreScraper
                 log.Info("Error Count: " + errorsCount + "\n");
             }
 
-            return resultUrls;
+            return parsedApps_list;
         }
 
-        private static void ParseAppUrls(ISet<string> urls, int downloadDelay = 0, IExporter exporter = null,
-            Action<AppModel> writeCallback = null)
-        {
-            log.Info("Parsing App URLs...");
-
-            int parsedAppCount = 0;
-
-            // Retry Counter (Used for exponential wait increasing logic)
-            int retryCounter = 0;
-
-            // Creating Instance of Web Requests Server
-            WebRequests server = new WebRequests();
-
-            foreach (string url in urls)
-            {
-                try
-                {
-                    // Building APP URL
-                    string appUrl = Consts.APP_URL_PREFIX + url;
-
-                    // Configuring server and Issuing Request
-                    server.Headers.Add(Consts.ACCEPT_LANGUAGE);
-                    server.Host = Consts.HOST;
-                    server.Encoding = "utf-8";
-                    server.EncodingDetection = WebRequests.CharsetDetection.DefaultCharset;
-
-                    //  this is how we actually connect to all this shit
-                    //  the only thing left - we need to randomize it and check if 200
-                    //WebProxy proxyObject = new WebProxy("http://" + ProxyLoader.ReturnRandomProxy(), true);
-                    //server.Proxy = proxyObject;
-
-                    string response = server.Get(appUrl);
-
-                    // Sanity Check
-                    if (String.IsNullOrEmpty(response) || server.StatusCode != System.Net.HttpStatusCode.OK)
-                    {
-                        log.Info("Error opening app page : " + appUrl);
-
-                        // Renewing WebRequest Object to get rid of Cookies
-                        server = new WebRequests();
-
-                        // Inc. retry counter
-                        retryCounter++;
-
-                        log.Info("Retrying:" + retryCounter);
-
-                        // Checking for maximum retry count
-                        double waitTime;
-                        if (retryCounter >= 11)
-                        {
-                            waitTime = TimeSpan.FromMinutes(35).TotalMilliseconds;
-                        }
-                        else
-                        {
-                            // Calculating next wait time ( 2 ^ retryCounter seconds)
-                            waitTime = TimeSpan.FromSeconds(Math.Pow(2, retryCounter)).TotalMilliseconds;
-                        }
-
-                        // Hiccup to avoid google blocking connections in case of heavy traffic from the same IP
-                        Thread.Sleep(Convert.ToInt32(waitTime));
-                    }
-                    else
-                    {
-                        // Reseting retry counter
-                        retryCounter = 0;
-
-                        // Parsing App Data
-                        AppModel parsedApp = parser.ParseAppPage(response, appUrl);
-
-                        // Export the App Data
-                        if (exporter != null)
-                        {
-                            log.Info("Parsed App: " + parsedApp.Name);
-
-                            exporter.Write(parsedApp);
-                        }
-
-                        // Pass the App Data to callback method
-                        if (writeCallback != null)
-                        {
-                            writeCallback(parsedApp);
-                        }
-
-                        // Default action is print to screen
-                        if (exporter == null && writeCallback == null)
-                        {
-                            Console.WriteLine(parsedApp);
-                        }
-
-                        ++parsedAppCount;
-
-                        // Apply download delay
-                        if (downloadDelay > 0)
-                        {
-                            Thread.Sleep(downloadDelay);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                    Console.WriteLine(url);
-                }
-            }
-
-            log.Info("Finished. Parsed App count: " + parsedAppCount + "\n");
-        }
+        
         
         /// <summary>
         /// Get Page Token and Cluster Token for play store streaming search result.
@@ -316,42 +210,6 @@ namespace PlayStoreScraper
             {
                 return cat_cl;
             }
-        }
-
-        protected static string EncodeNonAsciiCharacters(string value)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (char c in value)
-            {
-                if (c > 127)
-                {
-                    // This character is too big for ASCII
-                    string encodedValue = "\\u" + ((int)c).ToString("x4");
-                    sb.Append(encodedValue);
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-            return sb.ToString();
-        }
-
-        protected static string DecodeEncodedNonAsciiCharacters(string value, bool isDoubleSlash = false)
-        {
-            string regex = @"\\u(?<Value>[a-zA-Z0-9]{4})";
-            if (isDoubleSlash)
-            {
-                regex = @"\\" + regex;
-            }
-
-            return Regex.Replace(
-                value,
-                regex,
-                m =>
-                {
-                    return ((char)int.Parse(m.Groups["Value"].Value, NumberStyles.HexNumber)).ToString();
-                });
         }
     }
 }

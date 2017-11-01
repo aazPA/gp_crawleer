@@ -26,6 +26,13 @@ namespace PlayStoreScraper
         public static readonly string USER_AGENT         = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36";
 
         // XPaths
+
+        public static readonly string SHORT_APP_PACKAGENAME = "//div[@class='id-card-list card-list two-cards']/div[@class='card no-rationale square-cover apps small']";
+        public static readonly string SHORT_APP_COVER = "//div[@class='cover']/div[@class='cover-image-container']/div[@class='cover-outer-align']/div[@class='cover-inner-align']/img[@class='cover-image']";
+        public static readonly string SHORT_APP_NAME = "//div[@class='details']/a[@class='title']";
+
+
+
         public static readonly string APP_URLS           = "//div[@class='details']/a[@class='card-click-target' and @tabindex='-1' and @aria-hidden='true']";
         public static readonly string APP_NAME           = "//div[@class='info-container']/div[@class='document-title' and @itemprop='name']/div";
         public static readonly string APP_COVER_IMG      = "//div[@class='details-info']/div[@class='cover-container']/img[@class='cover-image']";

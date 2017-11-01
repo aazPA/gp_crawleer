@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace PlayStoreScraper.Models
 {
-    class AppShortDescription
+    public class AppShortDescription
     {
+        public string packageName { get; set; }
+        public string appName { get; set; }
+        public string appCover { get; set; }
     }
 }

@@ -18,27 +18,100 @@ namespace PlayStoreScraper
         /// </summary>
         /// <param name="response">HTML of the Search Result Page</param>
         /// <returns>Url of apps it finds</returns>
-        public IEnumerable<String> ParseAppUrls (string response)
+        public List<AppShortDescription> ParseAppUrls (string response)
         {
+
+            List<AppShortDescription> parsedApps_list = new List<AppShortDescription>();
+
+
             // Loading Html Document with Play Store content
             HtmlDocument map = new HtmlDocument ();
             map.LoadHtml (response);
 
             // Checking for nodes
-            HtmlNodeCollection nodes = map.DocumentNode.SelectNodes (Consts.APP_URLS);
+            HtmlNodeCollection nodes_url = map.DocumentNode.SelectNodes(Consts.APP_URLS);
 
-            if (nodes == null || nodes.Count == 0)
-                yield break;
 
-            // Reaching Nodes of Interest
-            foreach (var node in nodes)
+            //HtmlNode node_appCover = map.DocumentNode.SelectSingleNode(Consts.SHORT_APP_COVER);
+            //HtmlNode node_packageName = map.DocumentNode.SelectSingleNode(Consts.SHORT_APP_PACKAGENAME);
+            //HtmlNode node_appName = map.DocumentNode.SelectSingleNode(Consts.SHORT_APP_NAME);
+
+            if (nodes_url == null || nodes_url.Count == 0)
+                return parsedApps_list;
+
+
+            HtmlNodeCollection nodes_appCover = map.DocumentNode.SelectNodes(Consts.SHORT_APP_COVER);
+            HtmlNodeCollection nodes_packageName = map.DocumentNode.SelectNodes(Consts.SHORT_APP_PACKAGENAME);
+            HtmlNodeCollection nodes_appName = map.DocumentNode.SelectNodes(Consts.SHORT_APP_NAME);
+
+
+            //Console.WriteLine(node_appName.Attributes);
+
+
+            for (int i = 0; i < nodes_url.Count; i ++)
             {
-                // Checking if this node contains the url of an app page
-                if ((node.Attributes["href"] != null) && (node.Attributes["href"].Value.Contains ("details?id=")))
+                Console.WriteLine(nodes_appName[i].Attributes);
+
+                string packageName = string.Empty;
+                string appName = string.Empty;
+                string appCover = string.Empty;
+
+                AppShortDescription asd_cl = new AppShortDescription();
+
+
+
+                if (nodes_appName[i].Attributes.Count > 0)
                 {
-                    yield return node.Attributes["href"].Value;
+                    foreach (var attribute in nodes_appName[i].Attributes)
+                    {
+                        if (attribute.Name == "title")
+                        {
+                            appName = attribute.Value;
+                            break;
+                        }
+                    }
+                    asd_cl.appName = appName;
                 }
+
+                if (nodes_packageName[i].Attributes.Count > 0)
+                {
+                    foreach (var attribute in nodes_packageName[i].Attributes)
+                    {
+                        if (attribute.Name == "data-docid")
+                        {
+                            packageName = attribute.Value;
+                            break;
+                        }
+                    }
+                    asd_cl.packageName = packageName;
+                }
+
+                if (nodes_appCover[i].Attributes.Count > 0)
+                {
+                    foreach (var attribute in nodes_appCover[i].Attributes)
+                    {
+                        if (attribute.Name == "src")
+                        {
+                            string dirtyCoverUrl = attribute.Value;
+                            if (dirtyCoverUrl.Contains("=w"))
+                            {
+                                string[] splitDirtyCoverUrl = dirtyCoverUrl.Split(new string[] { "=w" }, StringSplitOptions.None);
+                                appCover = splitDirtyCoverUrl[0];
+                            }
+                            else
+                            {
+                                appCover = dirtyCoverUrl;
+                            }
+                            break;
+                        }
+                    }
+                    asd_cl.appCover = appCover;
+                }
+
+                parsedApps_list.Add(asd_cl);
             }
+            return parsedApps_list;
+
         }
 
         /// <summary>
