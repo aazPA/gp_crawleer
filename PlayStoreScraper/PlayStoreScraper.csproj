@@ -70,6 +70,7 @@
     <Compile Include="Exporters\IExporter.cs" />
     <Compile Include="Exporters\JSONExporter.cs" />
     <Compile Include="Models\AppModel.cs" />
+    <Compile Include="Models\AppShortDescription.cs" />
     <Compile Include="Models\ClusterAndToken.cs" />
     <Compile Include="PlayStoreParser.cs" />
     <Compile Include="PlayStoreScraper.cs" />

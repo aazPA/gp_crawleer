@@ -37,7 +37,9 @@ namespace PlayStoreScraper
             exporter = new CSVExporter(outputFilePath + ".csv", fieldNames);
 
             // Start crawling for the keywords with maximum 30 Apps result and download delay 1 second.
-            PlayStoreScraper.Crawl(keywords, exporter, 150, 1000);
+            PlayStoreScraper.Crawl(keywords, exporter, 150000, 1000);
+
+            Console.ReadLine();
 
 
             //// Same example with exporting to JSON file

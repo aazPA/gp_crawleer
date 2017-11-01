@@ -153,14 +153,7 @@ namespace PlayStoreScraper
                         crawlUrl = Consts.CRAWL_URL_CLUSTER;
                         postData = String.Format(Consts.POST_DATA_CLUSTER, cat_cl.clp, cat_cl.pagTok);
                     }
-                    //if (pagTok.Length == 0)
-                    //{
-                    //    break;
-                    //}
-
-                    // Build the next post data
-                    //postData = String.Format(Consts.POST_DATA, pagTok);
-                    Console.WriteLine("rere");
+                    Console.WriteLine("Inserted apps: " + insertedAppCount + ".");
 
                 } while (true);
 
@@ -289,7 +282,7 @@ namespace PlayStoreScraper
         protected static ClusterAndToken getPageAndClusterTokens(string response)
         {
 
-            ClusterAndToken cat_cl = new ClusterAndToken();
+            ClusterAndToken cat_cl = null;
 
             string pagTok = string.Empty;
             string clpTok = string.Empty;
@@ -303,6 +296,8 @@ namespace PlayStoreScraper
 
             if (pagTokenMatch.Success && clpTokenMatch.Success)
             {
+                cat_cl = new ClusterAndToken();
+
                 string dirtyPagToken = pagTokenMatch.Value.Replace("\\\\u003d", "=");
                 string [] splitDirtyPagToken = dirtyPagToken.Split(new string[] { "\\x22" }, StringSplitOptions.None);
                 string cleanPagToken = splitDirtyPagToken[0];
