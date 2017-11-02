@@ -27,11 +27,9 @@ namespace PlayStoreScraper
         private static PlayStoreParser parser = new PlayStoreParser();
 
         /// <summary>
-        /// Crawl Play Store based on keywords given and export the result to CSV
+        /// Crawl Play Store based on keywords given and export the result to the DB
         /// </summary>
         /// <param name="keywords">Array of keywords</param>
-        /// <param name="exporter">Exporter class for exporting. If not null, the IExporter.Export() will be called.</param>
-        ///// <param name="maxAppUrls">Maximum Scraped App Urls for each keyword. To scrape without limit, set the value to 0</param>
         /// <param name="downloadDelay">Download Delay in milliseconds</param>
         /// <param name="writeCallback">Callback method for writing the App Data</param>
         public static void CrawlByKeywords(string[] keywords, int downloadDelay = 0,
@@ -52,14 +50,126 @@ namespace PlayStoreScraper
             }
         }
 
-        public static List<AppShortDescription> CollectAppsShortInformationFromKeywords(string searchField)
+        /// <summary>
+        /// Crawl Play Store based on categories given and export the result to DB
+        /// </summary>
+        /// <param name="categories">Array of categories</param>
+        /// <param name="downloadDelay">Download Delay in milliseconds</param>
+        /// <param name="writeCallback">Callback method for writing the App Data</param>
+        public static void CrawlByCategories(string[] categories, int downloadDelay = 0,
+            Action<AppModel> writeCallback = null)
+        {
+            // Collect App Urls from keywords
+            foreach (string category in categories)
+            {
+                List<AppShortDescription> fullParsedList = CollectAppsShortInformationFromCategories(category);
+
+                // Apply download delay
+                if (downloadDelay > 0)
+                {
+                    Thread.Sleep(downloadDelay);
+                }
+
+                Console.WriteLine(fullParsedList);
+            }
+        }
+
+        public static List<AppShortDescription> CollectAppsShortInformationFromCategories(string category)
+        {
+            List<AppShortDescription> parsedApps_list = new List<AppShortDescription>();
+
+
+            log.Info("Crawling Category : [ " + category + " ]");
+
+            int numberOfCyclesCompleted = 0;
+            while (numberOfCyclesCompleted < Consts.CATEGORY_NUMBER_OF_CYCLES)
+            {
+                string crawlUrl = String.Format(Consts.CRAWL_URL_CATEGORY, category, "Russia");
+                string postData = String.Format(Consts.POST_DATA_CATEGORY, Consts.CATEGORY_NUMBER_OF_APPS_PER_CYCLE * numberOfCyclesCompleted);
+                numberOfCyclesCompleted++;
+                //Console.WriteLine(postDataTest);
+
+
+                // HTML Response
+                string response = string.Empty;
+
+                // Executing Web Requests
+                using (WebRequests server = new WebRequests())
+                {
+                    // Creating Request Object
+                    server.Host = Consts.HOST;
+
+                    //  this is how we actually connect to all this shit
+                    //  the only thing left - we need to randomize it and check if 200
+                    //WebProxy proxyObject = new WebProxy("http://" + ProxyLoader.ReturnRandomProxy(), true);
+                    //server.Proxy = proxyObject;
+
+                    int insertedAppCount = 0;
+                    int skippedAppCount = 0;
+                    int errorsCount = 0;
+
+                    // Executing Request
+                    response = server.Post(crawlUrl, postData);
+
+                    // Checking Server Status
+                    if (server.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        log.Error("Http Error - Status Code: " + server.StatusCode);
+
+                        errorsCount++;
+
+                        if (errorsCount > Consts.MAX_REQUEST_ERRORS)
+                        {
+                            log.Info("Crawl Stopped: MAX_REQUEST_ERRORS reached");
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+
+                    //var kek1 = parser.ParseAppUrls(response);
+
+
+                    // Parsing Links out of Html Page
+                    foreach (AppShortDescription asd in parser.ParseAppUrls(response))
+                    {
+                        if (!parsedApps_list.Contains(asd))
+                        {
+                            parsedApps_list.Add(asd);
+
+                            log.Info("Inserted App: " + asd);
+
+                            ++insertedAppCount;
+                        }
+                        else
+                        {
+                            ++skippedAppCount;
+                            log.Info("Duplicated App. Skipped: " + asd);
+                        }
+                    }
+
+                    exit:
+                    log.Info("Inserted App Count: " + insertedAppCount);
+                    log.Info("Skipped App Count: " + skippedAppCount);
+                    log.Info("Error Count: " + errorsCount + "\n");
+                }
+            }
+
+            return parsedApps_list;
+        }
+
+
+            public static List<AppShortDescription> CollectAppsShortInformationFromKeywords(string keyword)
         {
             List<AppShortDescription> parsedApps_list = new List<AppShortDescription> ();
 
 
-            log.Info("Crawling Search Term : [ " + searchField + " ]");
+            log.Info("Crawling Search Term : [ " + keyword + " ]");
 
-            string crawlUrl = String.Format(Consts.CRAWL_URL_KEYWORD_INITIAL, searchField, "Russia", "ru");
+            string crawlUrl = String.Format(Consts.CRAWL_URL_KEYWORD_INITIAL, keyword, "Russia", "ru");
 
             string postData = Consts.POST_DATA_KEYWORD_INITAL;
 

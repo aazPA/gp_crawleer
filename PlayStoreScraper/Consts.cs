@@ -14,9 +14,10 @@ namespace PlayStoreScraper
         public static readonly string CRAWL_URL_KEYWORD_CLUSTER = "https://play.google.com/store/apps/collection/search_results_cluster_apps?authuser=0";
         public static readonly string POST_DATA_KEYWORD_CLUSTER = @"start=0&num=60&numChildren=0&clp={0}&pagTok={1}&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
 
-        public static readonly string CRAWL_URL_CATEGORY = "https://play.google.com/store/{0}?gl={1}&authuser=0";
-        public static readonly string POST_DATA_CATEGORY_CLUSTER = @"start=0&num={0}&numChildren=0&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
+        public static readonly string CRAWL_URL_CATEGORY = "https://play.google.com/{0}?gl={1}&authuser=0";
+        public static readonly string POST_DATA_CATEGORY = @"start={0}&num=60&numChildren=0&pagtt=3&cctcss=square-cover&cllayout=NORMAL&xhr=1&ipf=1";
         public static readonly int CATEGORY_NUMBER_OF_CYCLES = 9;
+        public static readonly int CATEGORY_NUMBER_OF_APPS_PER_CYCLE = 60;
 
 
         public static readonly string REVIEWS_URL        = "https://play.google.com/store/getreviews";
